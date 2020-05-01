@@ -1,0 +1,143 @@
+<?php
+
+/**
+ * @file
+ * Contains theme override functions and preprocess functions
+ */
+
+use Drupal\Core\Template\RenderWrapper;
+use Drupal\Core\Template\Attribute;
+use Drupal\search\Form\SearchBlockForm;
+use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\system\Form\ThemeSettingsForm;
+use Drupal\file\Entity\File;
+use Drupal\Core\Url;
+use Drupal\file\Plugin\Core\Entity\FileInterface;
+
+/**
+ * Implements hook_preprocess_page() for block templates.
+ */
+
+function custom_ux_preprocess_page(&$variables) {
+  $variables['logo'] = file_url_transform_relative(file_create_url(theme_get_setting('logo.url')));
+  //$variables['logo'] = str_replace('.svg', '.png', $variables['logo']);
+
+  // Add Responsive class for footer.
+  if (!empty($variables['page']['footer_first']) && !empty($variables['page']['footer_second']) && !empty($variables['page']['footer_third'])) {
+    $variables['footer_class'] = 'col-md-4';
+  }
+  elseif((!empty($variables['page']['footer_first']) && !empty($variables['page']['footer_second'])) or (!empty($variables['page']['footer_first']) && !empty($variables['page']['footer_third'])) or (!empty($variables['page']['footer_third']) && !empty($variables['page']['footer_second']))) {
+    $variables['footer_class'] = 'col-md-6';
+    $variables['footer_third_class'] = 'col-md-6';
+  }
+  else {
+    $variables['footer_class'] = 'col-md-12';
+  }
+
+  // Add information about the number of sidebars.
+  if (!empty($variables['page']['sidebar_first'])) {
+    $variables['contentlayout'] = "col-md-9 col-lg-9";
+    $variables['sidebarfirst'] = 'col-md-3 col-lg-3';
+  }else{
+    $variables['contentlayout'] = 'col-md-12 col-lg-12';
+  }
+
+  $variables['copyright_text'] = theme_get_setting('copyright_text');
+
+  //To get the current URL
+  $current_url  = \Drupal::request()->getRequestUri();
+  $current_path = explode("/", $current_url);
+  $variables['current_path'] = $current_path[2];
+  if (theme_get_setting('show_getintouch','custom_ux') == 1) {
+    $variables['show_getintouch'] = 1;
+    $variables['getintouch_content'] = '<div class="single-footer-widget footer_2">
+        <h4>'.theme_get_setting('getintouch_title', 'custom_ux').'</h4>
+        <div class="contact_info">
+            <p>'.theme_get_setting('getintouch_text', 'custom_ux').'</p>
+        </div>
+    </div>';
+  }
+}
+
+
+/**
+ * Implements hook_preprocess_menu().
+ */
+function custom_ux_preprocess_menu(&$variables, $hook) {
+  if ($hook == 'menu__main') { // We're doing that for main menu.
+    // Get the current path.
+    $current_path = \Drupal::request()->getRequestUri();
+    $items = $variables['items'];
+    foreach ($items as $key => $item) {
+      // If path is current_path, set active to li.
+      if ($item['url']->toString() == $current_path) {
+      // Add active link.
+      $variables['items'][$key]['attributes']['class'] = 'active';
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_breadcrumb().
+ */
+function custom_ux_preprocess_breadcrumb(&$variables) {
+  if ($variables['breadcrumb']) {
+    if(($node = \Drupal::routeMatch()->getParameter('node')) && $variables['breadcrumb']){
+      $variables['breadcrumb'][] = array(
+      	'text' => $node->getTitle(),
+      	'url' => $node->URL()
+      );
+      $variables['#cache']['contexts'][] = 'url';
+    }
+  }
+}
+/**
+ * Implements hook_form_system_theme_settings_alter().
+ */
+function custom_ux_form_system_theme_settings_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+
+  // Custom submit to save the file permanent.
+  $form['#submit'][] = 'custom_ux_settings_form_submit';
+
+  //Copyright
+  $form['custom_ux_settings']['copyright'] = array(
+    '#type' => 'details',
+    '#title' => t('Copyright'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['custom_ux_settings']['copyright']['copyright_text'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Enter copyright text'),
+    '#default_value' => theme_get_setting('copyright_text'),
+  );
+  //Get in Touch
+  $form['custom_ux_settings']['getintouch'] = array(
+    '#type' => 'details',
+    '#title' => t('Get in Touch'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  $form['custom_ux_settings']['getintouch']['show_getintouch'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show Get in Touch'),
+    '#default_value' => theme_get_setting('show_getintouch'),
+    '#description'   => t("Show/Hide Get in Touch"),
+  );
+  $form['custom_ux_settings']['getintouch']['getintouch_title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#default_value' => theme_get_setting('getintouch_title'),
+  );
+
+  $form['custom_ux_settings']['getintouch']['getintouch_text'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Enter Address text'),
+    '#rows' => 4,
+    '#cols' => 5,
+    '#default_value' => theme_get_setting('getintouch_text'),
+  );
+}

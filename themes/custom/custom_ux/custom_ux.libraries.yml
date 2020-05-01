@@ -1,0 +1,23 @@
+bootstrap:
+  version: 1.x
+  css:
+    theme:
+      includes/bootstrap/css/bootstrap.min.css: {}
+  js:
+    includes/bootstrap/js/bootstrap.min.js: {}
+    https://unpkg.com/isotope-layout@3/dist/isotope.pkgd.min.js: { type: external, minified: true }
+    https://unpkg.com/axios/dist/axios.min.js: { type: external, minified: true }
+
+global-components:
+  Version: 1.x
+  css:
+    theme:
+      css/style.css: {}
+  js:
+    js/custom.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal.ajax
+    - core/drupal
+    - core/drupalSettings
+    - core/jquery.once

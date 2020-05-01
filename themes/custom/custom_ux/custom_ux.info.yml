@@ -1,0 +1,33 @@
+name: Tile
+type: theme
+description: 'Drupal 8 Responsive Theme.'
+package: core
+core: 8.x
+
+#Libraries
+libraries:
+  - custom_ux/bootstrap
+  - custom_ux/global-components
+
+#Regions
+regions:
+  header: 'Header'
+  search: 'Search'
+  primary_menu: 'Primary menu'
+
+  middle_first: 'Middle first widget'
+  middle_second: 'Middle second widget'
+  middle_third: 'Middle third widget'
+
+  highlighted: 'Highlighted'
+  page_title: 'Page title'
+  breadcrumb: 'Breadcrumb'
+  content: 'Content'
+  sidebar_first: 'Left SideBar'
+  footer_first: 'Footer first widget'
+  footer_second: 'Footer second widget'
+  footer_third: 'Footer third widget'
+
+  footer_menu: 'Footer menu'
+
+  auto_hidden_block: 'Auto hidden blocks'

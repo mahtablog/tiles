@@ -1,0 +1,87 @@
+{#
+/**
+ * @file
+ * Default theme implementation for a single field in a view.
+ *
+ * Available variables:
+ * - view: The view that the field belongs to.
+ * - field: The field handler that can process the input.
+ * - row: The raw result of the database query that generated this field.
+ * - output: The processed output that will normally be used.
+ *
+ * When fetching output from the row this construct should be used:
+ * data = row[field.field_alias]
+ *
+ * The above will guarantee that you'll always get the correct data, regardless
+ * of any changes in the aliasing that might happen if the view is modified.
+ *
+ * @see template_preprocess_views_view_field()
+ *
+ * @ingroup themeable
+ */
+#}
+{#
+{{ output -}}
+#}
+{% set type = view.field.field_tile_type.original_value %}
+{% if 'Article' in type|render|render %}
+  {% if view.field.field_link.original_value %}
+    <a href="{{ view.field.field_link.original_value  }}">
+  {% else %}
+    <a href="{{ view.field.view_node_1.original_value  }}">
+  {% endif %}
+    <div class="tile-box tile-box-spacing">
+    {% if drupal_view_result('classified_icon', 'block_1', view.field.nid_1.original_value) is empty %}
+      <div class="tile-classified">{{ drupal_view('classified_icon', 'block_1', view.field.nid.original_value ) }}</div>
+    {% else %}
+      <div class="article-classified">{{ drupal_view('classified_icon', 'block_1', view.field.nid_1.original_value ) }}</div>
+    {% endif %}
+
+
+    {% if view.field.field_image_1.original_value %}
+        <div class="tile-bg" style="background-image: url('{{view.field.field_image_1.original_value}}');"></div>
+    {% endif %}
+      <div class="tile-desc">
+        <h2>{{ view.field.title_1.original_value }}</h2>
+        <div>{{ view.field.field_sub_heading.original_value }}</div>
+      </div>
+    </div>
+  {% if view.field.field_link.original_value or view.field.view_node_1.original_value %}
+    </a>
+  {% endif %}
+
+{% elseif 'Video' in type|render|render %}
+  <div class="tile-box-video">
+    <div class="tile-box">
+      <div class="tile-classified">{{ drupal_view('classified_icon', 'block_1', view.field.nid.original_value ) }}</div>
+      <div class="player">
+        {{ view.field.field_youtube_video.original_value}}
+        <span class="video-icon" data-id={{ view.field.field_youtube_video_1.original_value}}>VIDEO</span>
+        </div>
+      <div class="tile-desc">
+        <h2>{{ view.field.title.original_value }}</h2>
+        <div>{{ view.field.field_sub_heading.original_value }}</div>
+      </div>
+    </div>
+    <div class="player-box" style="display: none;">
+      <span class="stop-video"></span>
+    </div>
+  </div>
+{% else %}
+  {% if view.field.field_link.original_value %}
+    <a href="{{ view.field.field_link.original_value  }}">
+  {% else %}
+    <a href="{{ view.field.view_node.original_value  }}">
+  {% endif %}
+  <div class="tile-box tile-box-spacing">
+    <div class="tile-classified">{{ drupal_view('classified_icon', 'block_1', view.field.nid.original_value ) }}</div>
+    <div class="tile-bg" style="background-image: url('{{view.field.field_image.original_value}}');"></div>
+    <div class="tile-desc">
+      <h2>{{ view.field.title.original_value }}</h2>
+      <div>{{ view.field.field_sub_heading.original_value }}</div>
+    </div>
+  </div>
+  {% if view.field.field_link.original_value or view.field.view_node.original_value %}
+    </a>
+  {% endif %}
+{% endif %}
